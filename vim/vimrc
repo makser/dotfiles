@@ -1,0 +1,191 @@
+syntax on
+syntax enable
+
+" =======================
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Specify a directory for plugins
+" " - For Neovim: ~/.local/share/nvim/plugged
+" " - Avoid using standard Vim directory names like 'plugin'
+"
+call plug#begin('~/.vim/plugged')
+" Initialize plugin system
+
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'neoclide/vim-jsx-improve'
+Plug 'davidhalter/jedi-vim'
+Plug 'vim-scripts/buftabs'
+Plug 'w0rp/ale'
+Plug 'morhetz/gruvbox'
+Plug 'junegunn/seoul256.vim'
+Plug 'chriskempson/base16-vim'
+Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'  " file tree view
+Plug 'Yggdroot/indentLine' " indent guidelines
+
+call plug#end()
+
+set encoding=utf-8
+set autowriteall
+set autoindent
+set backup
+set expandtab
+set fileformat=unix
+set foldcolumn=2
+set foldlevel=0
+set foldmethod=indent
+set hlsearch
+set hidden
+set ignorecase
+set incsearch
+set list
+set listchars=tab:>-,trail:-
+set mouse=
+set nocompatible
+set nowrap
+set pastetoggle=<F2>
+set ruler
+set shiftwidth=4
+set showbreak=|
+set smartcase
+set smartindent
+set smarttab
+set so=7
+set softtabstop=4
+set tabstop=4
+set textwidth=0
+set viminfo+=%
+set wildmode=longest,list,full
+set wildmenu
+set rtp+=/usr/local/opt/fzf
+
+:au BufWritePre * %s/\s\+$//e
+
+filetype plugin on
+
+filetype indent on
+
+nmap <silent> <leader>t :NERDTreeToggle<cr>
+nmap <silent> <leader>f :NERDTreeFind<cr>
+let NERDTreeShowHidden=1
+let NERDTreeIgnore=['\.pyc$', '\.git', '\.tox', '\.cache', '\.egg-info', '__pycache__', '\.ropeproject']
+" Make CtrlP search based on NERDTree root directory
+let g:NERDTreeChDirMode       = 2
+
+let g:jedi#use_tabs_not_buffers = 0
+let g:jedi#popup_on_dot = 0
+let g:jedi#show_call_signatures = 2
+
+set clipboard=unnamed
+
+let g:indentLine_enabled = 1
+let g:indentLine_faster = 1
+let g:indentLine_fileTypeExclude = ['haskell', 'json', 'yaml', 'markdown', 'text', 'sh', 'vim']
+
+autocmd FileType markdown set conceallevel=0  " unhide aterisks in markdown
+
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
+autocmd FileType ruby setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType html setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType jade setlocal ts=2 sts=2 sw=2 noexpandtab
+autocmd FileType vue setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType javascript setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType crontab setlocal nobackup nowritebackup
+
+set statusline=%<%f%h%m%r%=\ %l,%c%V\ %P
+set laststatus=2
+let g:buftabs_in_statusline=1
+let g:buftabs_only_basename=1
+
+" Set Python debugger breakpoint
+au FileType python map <silent> <leader>b oimport pdb; pdb.set_trace()<esc>
+au FileType python map <silent> <leader>B Oimport pdb; pdb.set_trace()<esc>
+
+" Map keys for bookmarks
+map <F8> zR
+nmap f <bar>119<bar>
+nmap <silent>  :lnext<CR>
+
+nmap <silent>  :lnext<CR>
+nmap <silent>  :lprevious<CR>
+
+" A tab produces a 4-space indentation
+:set softtabstop=4
+:set shiftwidth=4
+:set expandtab
+" replace tabs with spaces unless noted otherwise
+
+augroup filetype
+  au! BufRead,BufNewFile,BufEnter *Makefile*,*makefile*,*.mk set filetype=make
+augroup END
+" In Makefiles, don't expand tabs to spaces, since we need the actual tabs
+autocmd FileType make set noexpandtab
+autocmd FileType cpp set noexpandtab
+
+if executable('node_modules/.bin/eslint')
+    let g:ale_javascript_eslint_executable = '$(npm bin)/eslint'
+endif
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'css': ['csslint', 'stylelint'],
+\   'python': ['flake8'],
+\   'json': ['jsonlint'],
+\}
+let g:ale_fixers = {
+\   'javascript': ['prettier', 'eslint'],
+\   'css': ['prettier', 'stylelint'],
+\   'python': ['autopep8'],
+\   'json': ['prettier', 'fixjson'],
+\}
+let g:ale_fix_on_save = 1
+let g:ale_completion_enabled = 1
+let g:ale_lint_on_text_changed = 0
+let g:ale_python_autopep8_options = '--max-line-length 119'
+
+augroup javascript_folding
+    au!
+    au FileType javascript setlocal foldmethod=syntax
+augroup END
+
+let g:javascript_plugin_flow = 1
+
+packloadall
+silent! helptags ALL
+
+set autoread
+
+set backspace=indent,eol,start
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+syntax enable
+
+function! Tab_Or_Complete()
+  if col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w'
+    return "\<C-N>"
+  else
+    return "\<Tab>"
+  endif
+endfunction
+:inoremap <Tab> <C-R>=Tab_Or_Complete()<CR>
+:set dictionary="/usr/dict/words"
+
+colorscheme gruvbox
+"let g:seoul256_background = 233
+"colo seoul256
+
+" Put these lines at the very end of your vimrc file.
+
+" Load all plugins now.
+" Plugins need to be added to runtimepath before helptags can be generated.
+packloadall
+" Load all of the helptags now, after plugins have been loaded.
+" All messages and errors will be ignored.
+silent! helptags ALL

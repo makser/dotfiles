@@ -5,9 +5,6 @@ export DOTFILES="$HOME/.dotfiles"
 # Helper scripts
 source "$DOTFILES/scripts/helpers/functions.sh"
 
-# -- Set up $PATH --------------------------------------------------------------
-[[ ":$PATH:" == *":$/usr/local/bin:"* ]] || PATH="/usr/local/bin:$PATH"
-
 # -- Local Configuration (Before Default) --------------------------------------
 if [[ -f "$DOTFILES/zsh/zshrc.local.pre" ]]; then
   source $DOTFILES/zsh/zshrc.local.pre
@@ -20,7 +17,7 @@ fpath=( "$DOTFILES/zsh/custom" $fpath)
 
 # -- Theme ---------------------------------------------------------------------
 export NVIM_TUI_ENABLE_TRUE_COLOR=1
-ZSH_THEME="pure"
+ZSH_THEME="refined"
 
 # -- ZSH Plugins ---------------------------------------------------------------
 plugins=(git tmux npm bower vi-mode pj zsh-syntax-highlighting)
@@ -52,17 +49,29 @@ unsetopt correct_all
 unsetopt correct
 
 # -- Variables -----------------------------------------------------------------
-if [ "$TERM_PROGRAM" = "vscode" ]; then
-  IS_VSCODE=1
-else
-  IS_VSCODE=
-fi
+function sc {
+    NAME=$1
+    echo -en "\033]0;${NAME}\a"
+    cd ~/projects/$NAME
+    screen -S ${NAME}
+    screen -X "select 0"
+}
 
-if [ "$IS_VSCODE" ]; then
-  export EDITOR="$(which code)"
-else
-  export EDITOR="$(brew --prefix)/bin/nvim"
-fi
+alias ll="ls -al -h"
+alias pyc-rm="sudo find ./ -name '*.pyc' -delete; sudo find ./ -name '*.*.orig' -delete; sudo find ./ -name '*.pyo' -delete; sudo find ./ -name '*.*~' -delete;"
+
+alias grep="grep --exclude='*.pyo' --exclude='*.pyc' --exclude='*~' --exclude='*pb2.py' --exclude='.*.swp' --exclude='*.orig'"
+
+#alias vim="/usr/local/Cellar/vim/8.0.1600/bin/vim"
+#alias vimdiff="/usr/local/Cellar/vim/8.0.1600/bin/vimdiff"
+#alias python="/usr/local/Cellar/python@2/2.7.15_1/bin/python"
+#alias pip="/usr/local/Cellar/python/2.7.14/bin/pip"
+#alias pip3="/usr/local/Cellar/python/3.6.4_4/bin/pip3"
+export EDITOR=vim
+
+alias dm=docker-machine
+alias dc=docker-compose
+alias docker-cleanup=docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs docker rm
 
 # -- Aliases -------------------------------------------------------------------
 if [[ -f "$DOTFILES/aliases" ]]; then
@@ -77,8 +86,8 @@ if exists "hub"; then alias git=hub; fi
 
 if exists "gittower"; then alias tower='gittower `git rev-parse --show-toplevel`'; fi
 
-alias vim=nvim
-alias vi=nvim
+# alias vim=nvim
+alias vi=vim
 alias dm=docker-machine
 alias dc=docker-compose
 alias docker-cleanup=docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs docker rm
@@ -112,10 +121,6 @@ extract () {
 zstyle ':completion:*:*:hub:*' user-commands ${${(M)${(k)commands}:#git-*}/git-/}
 _git-delete-tag() { compadd "$@" $(git tag) }
 
-if [ "$IS_VSCODE" ]; then
-  git config core.editor "$EDITOR --wait"
-fi
-
 # -- Tmux ----------------------------------------------------------------------
 export DISABLE_AUTO_TITLE="true"
 alias tmux="tmux -2"
@@ -124,11 +129,8 @@ alias tmux="tmux -2"
 #    https://github.com/nvbn/thefuck
 alias fuck='$(thefuck $(fc -ln -1))'
 
-# -- Add HOME bin to $PATH -----------------------------------------------------
-[[ ":$PATH:" == *":$HOME/bin:"* ]] || PATH="$HOME/bin:$PATH"
-
 # -- Add DOTFILES bin to PATH --------------------------------------------------
-[[ ":$PATH:" == *":$DOTFILES/bin:"* ]] || PATH="$DOTFILES/bin:$PATH"
+export PATH="$PATH:$DOTFILES/bin"
 
 # -- Xiki ----------------------------------------------------------------------
 if [[ -f "$HOME/.xsh" ]]; then
@@ -139,9 +141,9 @@ fi
 if [ -f ~/.fzf.zsh ]; then
   source ~/.fzf.zsh
   export FZF_TMUX=1
-  export FZF_DEFAULT_OPTS='--color 16,info:6'
-  export FZF_DEFAULT_COMMAND="fd --type file --follow --hidden --exclude .git"
-  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_DEFAULT_OPTS='--color 16,info:6,hl:13,hl+:13'
+  export FZF_DEFAULT_COMMAND="rg --files-with-matches --no-messages -F ''"
+  export FZF_CTRL_T_COMMAND="rg --files-with-matches --no-messages --hidden -F '' | grep -v .git/"
 fi
 
 # -- OS-Specific Config --------------------------------------------------------
@@ -156,7 +158,7 @@ fi
 
 # ASDF is cloned manually into home directory
 if [[ -d "$HOME/.asdf/.git" ]]; then
-  export ASDF_DIR="$HOME/.asdf" 
+  export ASDF_DIR="$HOME/.asdf"
 fi
 
 # ASDF is installed through Homebrew
@@ -171,14 +173,14 @@ source $ASDF_DIR/asdf.sh
 # -- Yarn ---------------------------------------------------------------------
 # Make the shell aware of global packages installed by Yarn
 local yarn_global_modules="$XDG_CONFIG_HOME/yarn/global/node_modules"
-if [[ -d "$yarn_global_modules/.bin" && ":$PATH:" != *":$yarn_global_modules/.bin:"* ]]; then
+if [[ -d "$yarn_global_modules/.bin" ]]; then
   export PATH="$PATH:$yarn_global_modules/.bin"
 fi
 
 # -- Go ------------------------------------------------------------------------
 # Add $GOTPATH/bin to the $PATH
 export GOPATH=$HOME/Code/go
-[[ ":$PATH:" == *":$GOPATH/bin:"* ]] || PATH="$PATH:$GOPATH/bin"
+export PATH="$PATH:$GOPATH/bin"
 
 # -- Kubectl
 if exists "kubectl"; then
@@ -189,3 +191,26 @@ fi
 if [[ -f "$DOTFILES/zsh/zshrc.local" ]]; then
   source $DOTFILES/zsh/zshrc.local
 fi
+
+# Skip forward/back a word with opt-arrow
+bindkey '[C' forward-word
+bindkey '[D' backward-word
+#
+# # Skip to start/end of line with cmd-arrow
+bindkey "\033[1~" beginning-of-line
+bindkey "\033[4~" end-of-line
+#
+# # Delete word with opt-backspace/opt-delete
+bindkey '[G' backward-kill-word
+bindkey '[H' kill-word
+#
+# # Delete line with cmd-backspace
+bindkey '[I' kill-whole-line
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+source ~/.iterm2_shell_integration.zsh
+
+export PATH="/usr/local/bin:$PATH"
+
+source $DOTFILES/zsh/tmuxinator.zsh
+export PATH="/usr/local/opt/node@8/bin:$PATH"

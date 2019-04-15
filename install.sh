@@ -109,7 +109,7 @@ echo ""
 # TODO: Ask if the user wants to copy the current configuration to a .local file
 if get_boolean_response "Do you want to install the Neoim configuration file?"
 then
-  ln -sf $HOME/.dotfiles/nvim $HOME/.config/nvim
+  ln -sf $HOME/.dotfiles/nvim/init.vim $HOME/.config/nvim/init.vim
   echo_item "Linked Neovim configuration" "green"
 else
   echo_item "Ignoring Neovim configuration" red
