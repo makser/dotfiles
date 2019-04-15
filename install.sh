@@ -80,6 +80,7 @@ echo ""
 if get_boolean_response "Do you want to install the Tmux configuration file?"
 then
   ln -sf $HOME/.dotfiles/tmux/tmux.conf $HOME/.tmux.conf
+  ln -sf $HOME/.dotfiles/tmuxinator/devzone.yml $HOME/.config/tmuxinator/devzone.yml
   echo_item "Linked tmux configutation" "green"
 else
   echo_item "Ignoring Tmux configuration" "red"
@@ -107,9 +108,9 @@ echo ""
 # Link the dotfiles
 
 # TODO: Ask if the user wants to copy the current configuration to a .local file
-if get_boolean_response "Do you want to install the Neoim configuration file?"
+if get_boolean_response "Do you want to install the vim configuration file?"
 then
-  ln -sf $HOME/.dotfiles/nvim $HOME/.config/nvim
+  ln -sf $HOME/.dotfiles/vim/vimrc $HOME/.vimrc
   echo_item "Linked Neovim configuration" "green"
 else
   echo_item "Ignoring Neovim configuration" red

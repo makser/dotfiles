@@ -2,7 +2,6 @@ let b:js_breakpoint_cmd = 'debugger;'
 
 setlocal foldmethod=manual
 setlocal concealcursor=nc
-setlocal cc=""
 " setlocal conceallevel=2
 
 function! JavaScriptBreakpoint(lnum)

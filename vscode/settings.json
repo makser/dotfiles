@@ -30,7 +30,7 @@
     "**/dist": true,
     "**/tmp": true
   },
-  
+
   // Ignore build files in search
   "search.exclude": {
     "**/node_modules": true,

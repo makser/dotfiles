@@ -16,9 +16,6 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 
-# Tag Files
-tags
-
 # Common node stuff
 node_modules
 bower_components
@@ -34,3 +31,13 @@ ember.d.ts
 
 # Yarn Error
 yarn-error.log
+
+# Vim backup files
+*~
+
+.ropeproject
+
+# Test files
+
+001.js
+001.py
