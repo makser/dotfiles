@@ -86,8 +86,8 @@ if exists "hub"; then alias git=hub; fi
 
 if exists "gittower"; then alias tower='gittower `git rev-parse --show-toplevel`'; fi
 
-alias vim=nvim
-alias vi=nvim
+# alias vim=nvim
+alias vi=vim
 alias dm=docker-machine
 alias dc=docker-compose
 alias docker-cleanup=docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs docker rm
