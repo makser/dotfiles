@@ -1,6 +1,8 @@
 " Section: General Config {{{1
 " ----------------------------
 let mapleader = " "
+let &runtimepath .= "," . $DOTFILES . "/nvim"  " Add DOTFILES to runtimepath
+let &packpath .= "," . $DOTFILES . "/nvim"
 
 set shell=zsh " Set bash as the prompt for Vim
 set backspace=2   " Backspace deletes like most programs in insert mode
@@ -49,8 +51,8 @@ set splitbelow
 set splitright
 " }}}2
 " Point to the Python executables in `asdf` {{{2
-let g:python_host_prog = $ASDF_DIR . '/installs/python/2.7.10/bin/python'
-let g:python3_host_prog = $ASDF_DIR . '/installs/python/3.5.0/bin/python'
+let g:python_host_prog = $HOME . '/.asdf/installs/python/2.7.10/bin/python'
+let g:python3_host_prog = $HOME . '/.asdf/installs/python/3.5.0/bin/python'
 " }}}2
 " Configure grep to use The Silver Searcher {{{2
 if executable('ag')
@@ -84,9 +86,9 @@ if has("autocmd")
 
   autocmd BufRead,BufNewFile .eslintrc,.jscsrc,.jshintrc,.babelrc set ft=json
 
-  au BufRead,BufNewFile *.scss set filetype=scss.css
-
   autocmd BufRead,BufNewFile gitconfig set ft=.gitconfig
+
+  au! BufRead,BufNewFile *.tsx       setfiletype typescript
 endif
 " }}}1
 " Section: External Functions {{{
@@ -101,7 +103,7 @@ nnoremap <leader>md :call MarkedPreview()<CR>
 " }}}
 " Open current repo in Tower {{{
 function! OpenInGitTower()
-  call system('gittower `git rev-parse --show-toplevel`')
+  call system('gittower ' . getcwd())
 endfunction
 nnoremap <leader>gt :call OpenInGitTower()<CR>
 " }}}
@@ -115,6 +117,7 @@ call plug#begin()
 Plug 'trevordmiller/nova-vim'
 Plug 'vim-airline/vim-airline'            " Handy info
 Plug 'retorillo/airline-tablemode.vim'
+Plug 'edkolev/tmuxline.vim'               " Make the Tmux bar match Vim
 Plug 'ryanoasis/vim-webdevicons'
 Plug 'junegunn/goyo.vim'
 
@@ -131,44 +134,49 @@ Plug 'francoiscabrol/ranger.vim'
 Plug 'vim-scripts/matchit.zip'            " More powerful % matching
 Plug 'Lokaltog/vim-easymotion'            " Move like the wind!
 Plug 'jeffkreeftmeijer/vim-numbertoggle'  " Smarter line numbers
-Plug 'kshenoy/vim-signature'              " Show marks in the gutter
+Plug 'wellle/targets.vim'
+Plug 'kshenoy/vim-signature'
 Plug 'haya14busa/incsearch.vim'           " Better search highlighting
 
 " Editing {{{3
 Plug 'tpope/vim-surround'                 " Change word surroundings
 Plug 'tpope/vim-commentary'               " Comments stuff
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-endwise'
 Plug 'dhruvasagar/vim-table-mode',        { 'on': 'TableModeEnable' }
 Plug 'kana/vim-textobj-user'
+Plug 'sgur/vim-textobj-parameter'
 Plug 'jasonlong/vim-textobj-css'
+Plug 'Konfekt/FastFold'
 Plug 'editorconfig/editorconfig-vim'
 
 " Git
 Plug 'tpope/vim-fugitive'                 " Git stuff in Vim
 Plug 'airblade/vim-gitgutter'
 Plug 'junegunn/gv.vim',                   { 'on': 'GV' }
-Plug 'jez/vim-github-hub'                 " Filetype for hub pull requests
+Plug 'jez/vim-github-hub'
 
 " Task Running
 Plug 'tpope/vim-dispatch'                 " Run tasks asychronously in Tmux
 Plug 'w0rp/ale'                           " Linter
+Plug 'wincent/terminus'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'Olical/vim-enmasse'                 " Edit all files in a Quickfix list
+Plug 'janko-m/vim-test'
 
 " Autocomplete {{{3
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+Plug 'Shougo/deoplete.nvim',              { 'do': ':UpdateRemotePlugins' }
+Plug 'zchee/deoplete-jedi'
+Plug 'carlitux/deoplete-ternjs'
+Plug 'alexlafroscia/deoplete-flow',       { 'branch': 'pass-filename-to-autocomplete' }
 
 " Language Support {{{3
 " JavaScript {{{4
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'rhysd/npm-debug-log.vim'
+Plug '~/projects/vim-plugins/vim-ember-cli'
+Plug 'AndrewRadev/ember_tools.vim'
 Plug 'neovim/node-host',                  { 'do': 'npm install' }
-Plug 'cdata/vim-tagged-template'
 
 " TypeScript {{{4
 Plug 'HerringtonDarkholme/yats.vim'
@@ -177,11 +185,9 @@ Plug 'mhartington/nvim-typescript',       { 'do': ':UpdateRemotePlugins' }
 " Elm {{{4
 Plug 'ElmCast/elm-vim'
 
-" Handlebars
-Plug 'joukevandermaas/vim-ember-hbs'
-
 " HTML {{{4
-Plug 'othree/html5.vim'
+Plug 'othree/html5.vim',                  { 'for': 'html' }
+Plug 'mustache/vim-mustache-handlebars'
 Plug 'mattn/emmet-vim'
 
 " CSS {{{4
@@ -193,14 +199,23 @@ Plug 'cakebaker/scss-syntax.vim'
 " Ruby {{{4
 Plug 'vim-ruby/vim-ruby',                 { 'for': 'ruby' }
 Plug 'tpope/vim-rails'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-endwise'
 
 " Python {{{4
 Plug 'klen/python-mode',                  { 'for': 'python' }
+Plug 'davidhalter/jedi-vim',              { 'for': 'python' }
+Plug 'alfredodeza/pytest.vim',            { 'for': 'python' }
 
 " Rust {{{4
 Plug 'wellbredgrapefruit/tomdoc.vim',     { 'for': 'ruby' }
 Plug 'wting/rust.vim'
 Plug 'cespare/vim-toml'
+
+" Go {{{4
+Plug 'fatih/vim-go'
+Plug 'nsf/gocode',                        { 'rtp': 'nvim', 'do': './nvim/symlink.sh' }
+Plug 'zchee/deoplete-go'
 
 " Markdown {{{4
 Plug 'reedes/vim-pencil'                  " Markdown, Writing
@@ -280,15 +295,44 @@ set completeopt-=preview
 
 syntax enable
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-set t_ut=                " fix 256 colors in tmux http://sunaku.github.io/vim-256color-bce.html
-if has("termguicolors")  " set true colors
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-  endif
+set termguicolors
 set background=dark
-colorscheme nova-with-italics
+" colorscheme nova
 
+" Setup Terminal Colors For Neovim {{{
+if has('nvim')
+  " dark0 + gray
+  let g:terminal_color_0 = "#282828"
+  let g:terminal_color_8 = "#928374"
+
+  " neurtral_red + bright_red
+  let g:terminal_color_1 = "#cc241d"
+  let g:terminal_color_9 = "#fb4934"
+
+  " neutral_green + bright_green
+  let g:terminal_color_2 = "#98971a"
+  let g:terminal_color_10 = "#b8bb26"
+
+  " neutral_yellow + bright_yellow
+  let g:terminal_color_3 = "#d79921"
+  let g:terminal_color_11 = "#fabd2f"
+
+  " neutral_blue + bright_blue
+  let g:terminal_color_4 = "#458588"
+  let g:terminal_color_12 = "#83a598"
+
+  " neutral_purple + bright_purple
+  let g:terminal_color_5 = "#b16286"
+  let g:terminal_color_13 = "#d3869b"
+
+  " neutral_aqua + faded_aqua
+  let g:terminal_color_6 = "#689d6a"
+  let g:terminal_color_14 = "#8ec07c"
+
+  " light4 + light1
+  let g:terminal_color_7 = "#a89984"
+  let g:terminal_color_15 = "#ebdbb2"
+endif " }}}
 " }}}
 " Section: Local-Machine Config {{{
 

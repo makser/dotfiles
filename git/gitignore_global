@@ -32,5 +32,7 @@ ember.d.ts
 # ASDF Tool Versions
 .tool-versions
 
-# Yarn Error
-yarn-error.log
+# Vim backup files
+*~
+
+.ropeproject
