@@ -1,7 +1,7 @@
 [user]
-  editor = /usr/local/bin/nvim
-  email = alex@lafroscia.com
-  name = Alex LaFroscia
+  editor = /usr/local/bin/vim
+  email = mreva@activision.com
+  name = Maksym Reva
 
 [alias]
   # Add
@@ -128,22 +128,16 @@
   # 'git push' will push the current branch to its tracking branch
   # the usual default is to push all branches
   default = tracking
+	autoSetupRemote = true
 
 [merge]
-  tool = Kaleidoscope
+  tool = vimdiff
   algorithm = patience
   strategy = recursive
 
-[mergetool "Kaleidoscope"]
-  cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
-  trustExitCode = true
-
 [diff]
-  tool = Kaleidoscope
+  tool = vimdiff
   compactionHeuristic = true
-
-[difftool "Kaleidoscope"]
-  cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
 
 [core]
   excludesfile = ~/.gitignore_global
@@ -161,3 +155,6 @@
 
 [credential]
   helper = osxkeychain
+
+[merge]
+  tool = vimdiff

@@ -1,0 +1,357 @@
+syntax on
+syntax enable
+
+" =======================
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Specify a directory for plugins
+" " - For Neovim: ~/.local/share/nvim/plugged
+" " - Avoid using standard Vim directory names like 'plugin'
+"
+call plug#begin('~/.vim/plugged')
+" Initialize plugin system
+
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'neoclide/vim-jsx-improve'
+" Plug 'davidhalter/jedi-vim'
+Plug 'vim-scripts/buftabs'
+Plug 'w0rp/ale'
+Plug 'morhetz/gruvbox'
+Plug 'junegunn/seoul256.vim'
+Plug 'chriskempson/base16-vim'
+Plug 'Yggdroot/indentLine' " indent guidelines
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'mhartington/oceanic-next'
+" Plug 'github/copilot.vim'
+
+call plug#end()
+
+set encoding=utf-8
+set autowriteall
+set autoindent
+set backup
+set expandtab
+set fileformat=unix
+set foldcolumn=2
+set foldlevel=0
+set foldmethod=indent
+set hlsearch
+set hidden
+set ignorecase
+set incsearch
+set list
+set listchars=tab:>-,trail:-
+set mouse=
+set nocompatible
+set nowrap
+set pastetoggle=<F2>
+set ruler
+set shiftwidth=4
+set showbreak=|
+set smartcase
+set smartindent
+set smarttab
+set so=7
+set softtabstop=4
+set tabstop=4
+set textwidth=0
+set viminfo+=%
+set wildmode=longest,list,full
+set wildmenu
+set rtp+=/usr/local/opt/fzf
+
+:au BufWritePre * %s/\s\+$//e
+
+filetype plugin on
+
+filetype indent on
+
+let g:jedi#use_tabs_not_buffers = 0
+let g:jedi#popup_on_dot = 0
+let g:jedi#show_call_signatures = 2
+
+set clipboard=unnamed
+
+let g:indentLine_enabled = 1
+let g:indentLine_faster = 1
+let g:indentLine_fileTypeExclude = ['haskell', 'json', 'yaml', 'markdown', 'text', 'sh', 'vim']
+
+autocmd FileType markdown set conceallevel=0  " unhide aterisks in markdown
+
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
+autocmd FileType ruby setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType html setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType jade setlocal ts=2 sts=2 sw=2 noexpandtab
+autocmd FileType vue setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType crontab setlocal nobackup nowritebackup
+
+set statusline=%<%f%h%m%r%=\ %l,%c%V\ %P
+set laststatus=2
+let g:buftabs_in_statusline=1
+let g:buftabs_only_basename=1
+
+" Set Python debugger breakpoint
+au FileType python map <silent> <leader>b oimport pdb; pdb.set_trace()<esc>
+au FileType python map <silent> <leader>B Oimport pdb; pdb.set_trace()<esc>
+
+" Map keys for bookmarks
+map <F8> zR
+nmap f <bar>119<bar>
+nmap <silent>  :lnext<CR>
+nmap <silent>  :lprevious<CR>
+
+" A tab produces a 4-space indentation
+:set softtabstop=4
+:set shiftwidth=4
+:set expandtab
+" replace tabs with spaces unless noted otherwise
+
+augroup filetype
+  au! BufRead,BufNewFile,BufEnter *Makefile*,*makefile*,*.mk set filetype=make
+augroup END
+" In Makefiles, don't expand tabs to spaces, since we need the actual tabs
+autocmd FileType make set noexpandtab
+autocmd FileType cpp set noexpandtab
+
+if executable('node_modules/.bin/eslint')
+    let g:ale_javascript_eslint_executable = '$(npm bin)/eslint'
+endif
+let g:ale_linter_aliases = {'typescriptreact': 'typescript'}
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'typescript': ['eslint'],
+\   'css': ['csslint', 'stylelint'],
+\   'python': ['flake8'],
+\   'json': ['jsonlint'],
+\}
+let g:ale_fixers = {
+\   'javascript': ['prettier', 'eslint'],
+\   'typescript': ['prettier', 'eslint'],
+\   'typescriptreact': ['prettier', 'eslint'],
+\   'css': ['prettier', 'stylelint'],
+\   'python': ['black', 'isort'],
+\   'json': ['prettier', 'fixjson'],
+\}
+"   'python': ['autoimport', 'isort', 'autopep8', 'black'],
+let g:ale_fix_on_save = 1
+let g:ale_completion_enabled = 0
+let g:ale_lint_on_text_changed = 0
+let g:ale_python_autopep8_options = '--max-line-length 119'
+
+let g:javascript_plugin_flow = 1
+
+let g:python3_host_prog = expand('~/.pyenv/shims/python')
+" let g:jedi#environment_path = expand("~/.pyenv/shims/python")
+
+packloadall
+silent! helptags ALL
+
+set autoread
+
+set backspace=indent,eol,start
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+syntax enable
+
+" use <tab> to trigger completion and navigate to the next complete item
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+inoremap <silent><expr> <Tab>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+
+" Put these lines at the very end of your vimrc file.
+
+" Load all plugins now.
+" Plugins need to be added to runtimepath before helptags can be generated.
+packloadall
+" Load all of the helptags now, after plugins have been loaded.
+" All messages and errors will be ignored.
+silent! helptags ALL
+
+" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
+" unicode characters in the file autoload/float.vim
+set encoding=utf-8
+
+" TextEdit might fail if hidden is not set.
+set hidden
+
+" Some servers have issues with backup files, see #649.
+set nobackup
+set nowritebackup
+
+" Give more space for displaying messages.
+set cmdheight=2
+
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
+
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+if has("nvim-0.5.0") || has("patch-8.1.1564")
+  " Recently vim can merge signcolumn and number column into one
+  set signcolumn=number
+else
+  set signcolumn=yes
+endif
+
+" Use <c-space> to trigger completion.
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> coc#pum#visible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
+  endif
+endfunction
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+" Use CTRL-S for selections ranges.
+" Requires 'textDocument/selectionRange' support of language server.
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
+
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
+
+" Add `:Fold` command to fold current buffer.
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer.
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+command! Isort :%!isort -
+
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+" Theme
+ syntax enable
+" for vim 7
+ set t_Co=256
+
+" for vim 8
+ if (has("termguicolors"))
+  set termguicolors
+ endif
+
+
+let g:copilot_no_tab_map = v:true
+imap <silent><script><expr> <C-n> copilot#Next()
+imap <silent><script><expr> <C-p> copilot#Previous()
+
+imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
+
+" Set the colorscheme
+colorscheme OceanicNext
+
